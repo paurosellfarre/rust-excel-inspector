@@ -1,0 +1,11 @@
+[package]
+name = "inspector-gadget"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+egui_file = "0.16"
+eframe = "0.26"
+calamine = "0.24.0"
