@@ -1,9 +1,9 @@
 // xlsx_reader.rs
 
 use calamine::{open_workbook, Reader, Xlsx};
-use std::path::PathBuf;
+use std::{fmt::Error, path::PathBuf};
 
-pub fn read_xlsx_file(path: &PathBuf) -> Vec<String> {
+pub fn read_xlsx_file(path: &PathBuf) -> Result<Vec<String>, Error> {
     let mut workbook: Xlsx<_> = open_workbook(path).unwrap();
     let mut results: Vec<String> = Vec::new();
 
@@ -13,9 +13,8 @@ pub fn read_xlsx_file(path: &PathBuf) -> Vec<String> {
     let firt_sheet_expected = vec!["Empresa", "Dias previstos extraccion."];
     
     if let Some(Ok(range)) = workbook.worksheet_range_at(0) {
+        
         for row in range.rows() {
-            println!("Row: {:?}", row);
-
             //Check if the first cell of the row is the expected one
             if let Some(cell) = row.get(0) {
                 for expected in &firt_sheet_expected {
@@ -23,19 +22,19 @@ pub fn read_xlsx_file(path: &PathBuf) -> Vec<String> {
                         
                         //Get the next cell
                         if let Some(next_cell) = row.get(1) {
-                            println!("Next cell: {:?}", next_cell);
                             results.push(next_cell.to_string());
                         }
                     }
                 }
-            }
-            
+            }  
         }
+        
     }
 
     //From second sheet we want to count the number of DNIs (column 2)
     //so we know how many employees are in the company
     //DNI example: 45735359D
+    let second_sheet_expected = vec!["DNI"];
 
     if let Some(Ok(range)) = workbook.worksheet_range_at(1) {
         let mut dni_count = 0;
@@ -50,5 +49,9 @@ pub fn read_xlsx_file(path: &PathBuf) -> Vec<String> {
         results.push(dni_count.to_string());
     }
 
-    results
+    if results.len() != firt_sheet_expected.len() + second_sheet_expected.len() {
+        return Err(Error);
+    }
+
+    Ok(results)
 }

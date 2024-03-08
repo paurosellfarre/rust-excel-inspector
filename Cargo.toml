@@ -9,3 +9,6 @@ edition = "2021"
 egui_file = "0.16"
 eframe = "0.26"
 calamine = "0.24.0"
+xlsxwriter = "0.6.0"
+egui_extras = { version = "0.26.2", features = ["all_loaders"] }
+image = { version = "0.24", features = ["jpeg", "png"] }
