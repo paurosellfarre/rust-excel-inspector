@@ -27,8 +27,8 @@ impl App for MainFrame {
       ui.vertical_centered(|ui| {
 
         egui_extras::install_image_loaders(ctx);
-        ui.add(Image::new(include_image!("../assets/inspector-image.png")).max_width(250.0));
-        ui.add_space(110.0);
+        ui.add(Image::new(include_image!("../assets/inspector-image.png")).max_width(150.0));
+        ui.add_space(25.0);
 
         if (ui.button(RichText::new("Search Excels").size(20.0))).clicked() {
 
@@ -102,7 +102,7 @@ fn main() {
     "Excel Inspector Gadget",
     eframe::NativeOptions {
       viewport: ViewportBuilder::default()
-      .with_inner_size([400.0, 588.0])
+      .with_inner_size([400.0, 350.0])
       .with_resizable(false),
       ..Default::default()
     },
