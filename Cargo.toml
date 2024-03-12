@@ -6,13 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-eframe = "0.26"
 calamine = "0.24.0"
 xlsxwriter = "0.6.0"
-egui_extras = { version = "0.26.2", features = ["all_loaders"] }
 image = { version = "0.24", features = ["jpeg", "png"] }
 native-dialog = "0.7.0"
-
-[[bin]]
-name = "inspector-gadget"
-path = "src/main.rs"
+iced = "0.12.1"
