@@ -99,18 +99,21 @@ impl Sandbox for MainFrame {
             }   
           }
 
-          if let Err(err) = xlsx_writer::write_resume_xsls_file(&self.monthly_employee_count) {
-            let new_error = format!("\nError writing resume xlsx file: {}", err);
-            self.error_message = match &self.error_message {
-              Some(s) if !s.is_empty() => Some(format!("{}. {}", s, new_error)),
-              _ => Some(new_error),
-            };
-          } else {
-            let new_error = format!("\nFile resumen.xlsx processed successfully");
-            self.error_message = match &self.error_message {
-              Some(s) if !s.is_empty() => Some(format!("{}. {}", s, new_error)),
-              _ => Some(new_error),
-            };
+          //If there was no files processed, do not create the resume file
+          if self.monthly_employee_count.iter().sum::<i32>() > 0 {
+            if let Err(err) = xlsx_writer::write_resume_xsls_file(&self.monthly_employee_count) {
+              let new_error = format!("\nError writing resume xlsx file: {}", err);
+              self.error_message = match &self.error_message {
+                Some(s) if !s.is_empty() => Some(format!("{}. {}", s, new_error)),
+                _ => Some(new_error),
+              };
+            } else {
+              let new_error = format!("\nFile resumen.xlsx processed successfully");
+              self.error_message = match &self.error_message {
+                Some(s) if !s.is_empty() => Some(format!("{}. {}", s, new_error)),
+                _ => Some(new_error),
+              };
+            }
           }
         }
       }
