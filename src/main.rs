@@ -1,3 +1,4 @@
+#![windows_subsystem = "windows"]
 use iced::widget::{button, column, container, text};
 use iced::{Element, Sandbox, Settings};
 
@@ -14,7 +15,6 @@ pub struct MainFrame {
   paths: Vec<PathBuf>,
   opened_file: Option<PathBuf>,
   error_message: Option<String>,
-  resume_message: Option<String>,
   monthly_employee_count: Vec<i32>,
 }
 
