@@ -8,6 +8,6 @@ edition = "2021"
 [dependencies]
 calamine = "0.24.0"
 xlsxwriter = "0.6.0"
-image = { version = "0.24", features = ["jpeg", "png"] }
 native-dialog = "0.7.0"
 iced = "0.12.1"
+chrono = "0.4.35"

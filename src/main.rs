@@ -1,5 +1,5 @@
-use iced::widget::{button, column, text,  Column};
-use iced::{Sandbox, Element, Settings};
+use iced::widget::{button, column, container, text};
+use iced::{Element, Sandbox, Settings};
 
 
 use native_dialog::FileDialog;
@@ -14,6 +14,8 @@ pub struct MainFrame {
   paths: Vec<PathBuf>,
   opened_file: Option<PathBuf>,
   error_message: Option<String>,
+  resume_message: Option<String>,
+  monthly_employee_count: Vec<i32>,
 }
 
 #[derive(Debug, Clone)]
@@ -52,6 +54,8 @@ impl Sandbox for MainFrame {
         }
 
         Message::FileOpened => {
+          self.monthly_employee_count = vec![0; 12];
+          self.error_message = None;
 
           for path in &self.paths {
             //Check if opened is a file or a directory
@@ -63,7 +67,7 @@ impl Sandbox for MainFrame {
   
             self.opened_file = Some(path.to_path_buf());
   
-            match xlsx_reader::read_xlsx_file(&path.to_path_buf()) {
+            match xlsx_reader::read_xlsx_file(&path.to_path_buf(), &mut self.monthly_employee_count) {
               
               Ok(results) => {
                 if let Err(err) = xlsx_writer::write_xlsx_file(&results) {
@@ -94,6 +98,20 @@ impl Sandbox for MainFrame {
   
             }   
           }
+
+          if let Err(err) = xlsx_writer::write_resume_xsls_file(&self.monthly_employee_count) {
+            let new_error = format!("\nError writing resume xlsx file: {}", err);
+            self.error_message = match &self.error_message {
+              Some(s) if !s.is_empty() => Some(format!("{}. {}", s, new_error)),
+              _ => Some(new_error),
+            };
+          } else {
+            let new_error = format!("\nFile resumen.xlsx processed successfully");
+            self.error_message = match &self.error_message {
+              Some(s) if !s.is_empty() => Some(format!("{}. {}", s, new_error)),
+              _ => Some(new_error),
+            };
+          }
         }
       }
 
@@ -102,34 +120,41 @@ impl Sandbox for MainFrame {
   }
 
   fn view(&self) -> Element<Self::Message> {
-    
     let open_button = button::Button::new( text::Text::new("Open File"))
       .on_press(Message::OpenFile);
 
-    let content = Column::new()
-      .push(open_button);
+    let content = column![
+      text::Text::new("Excel Inspector. Select your files"),
+      open_button,
+      match &self.error_message {
+        Some(s) => text::Text::new(s),
+        None => text::Text::new(""),
+      }
+    ]
+    .spacing(20);
 
-    content.into()
+    let container = container::Container::new(content)
+      .width(iced::Length::Fill)
+      .height(iced::Length::Fill)
+      .center_x()
+      .center_y();
+
+    container.into()
     
   }
   
 
 }
 
-extern "system" {
-  fn SetStdHandle(nStdHandle: u32, hHandle: *mut ()) -> i32;
-}
-
 fn main() {
-  use std::os::windows::io::AsRawHandle;
-  //Desktop route
-  let error_log = r"C:\Users\Public\error_log.txt";
-  let f = std::fs::File::create(error_log).unwrap();
-  unsafe {
-      SetStdHandle((-12_i32) as u32, f.as_raw_handle().cast())
-  };
 
-  let error = MainFrame::run(Settings::default());
+  let error = MainFrame::run(Settings{
+    window: iced::window::Settings {
+        size: iced::Size::new(300.0, 300.0),
+        ..Default::default()
+    },
+    ..Default::default()
+  });
 
   if error.is_err() {
     eprintln!("{}", error.unwrap_err());
